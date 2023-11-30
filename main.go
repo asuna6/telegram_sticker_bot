@@ -132,7 +132,7 @@ func main() {
 				// 否则会产生一个报错类似于: exec: "ffmpeg": cannot run executable found relative to current directory
 				// linux下可以自动下载 ffmpeg
 				// 如果转换为gif格式会损失图像质量, 效果很不好
-				cmd := sh.Command("ffmpeg", "-i", webmFileName, mp4FileName)
+				cmd := sh.Command("ffmpeg", "-i", webmFileName, "-vf", "pad=ceil(iw/2)*2:ceil(ih/2)*2", mp4FileName)
 				cmd.ShowCMD = true
 				output, err := cmd.CombinedOutput()
 				if err != nil {
