@@ -25,7 +25,7 @@ func main() {
 		return
 	}
 
-	log.Printf("%s 启动", bot.Me.Username)
+	log.Printf("%s 马猴烧酒启动", bot.Me.Username)
 
 	commands := []tele.Command{{
 		Text:        "get_id",
@@ -53,13 +53,14 @@ func main() {
 		// 创建文件夹
 		_, err := os.Stat(dir)
 		if err != nil {
+			if !os.IsNotExist(err) {
+				return c.Send(err.Error(), tele.ModeHTML)
+			}
 			if os.IsNotExist(err) {
 				err = os.Mkdir(dir, os.ModePerm)
 				if err != nil {
 					return c.Send(err.Error(), tele.ModeHTML)
 				}
-			} else {
-				return c.Send(err.Error(), tele.ModeHTML)
 			}
 		}
 
@@ -71,9 +72,9 @@ func main() {
 			tgsFileName := fmt.Sprintf("%s/%s.tgs", dir, sticker.UniqueID)
 			gifFileName := strings.ReplaceAll(tgsFileName, ".tgs", ".tgs.gif")
 
-			_, err = os.Stat(tgsFileName)
+			_, err = os.Stat(gifFileName)
 			if err != nil {
-				if os.IsNotExist(err) == false {
+				if !os.IsNotExist(err) {
 					return c.Send(err.Error(), tele.ModeHTML)
 				}
 
@@ -82,23 +83,16 @@ func main() {
 					return c.Send(err.Error(), tele.ModeHTML)
 				}
 
-				_, err = os.Stat(gifFileName)
+				if runtime.GOOS != "linux" {
+					return c.Send("请在linux中执行", tele.ModeHTML)
+				}
+				// 使用第三方的docker镜像转换tgs为gif, 参考 https://github.com/ed-asriyan/lottie-converter
+				cmd := sh.Command("docker", "run", "--rm", "-v", fmt.Sprintf("%s:/source", dir), "edasriyan/lottie-to-gif")
+				cmd.ShowCMD = true
+				output, err := cmd.CombinedOutput()
 				if err != nil {
-					if os.IsNotExist(err) == false {
-						return c.Send(err.Error(), tele.ModeHTML)
-					}
-
-					if runtime.GOOS != "linux" {
-						return c.Send("请在linux中执行", tele.ModeHTML)
-					}
-					// 使用第三方的docker镜像转换tgs为gif, 参考 https://github.com/ed-asriyan/lottie-converter
-					cmd := sh.Command("docker", "run", "--rm", "-v", fmt.Sprintf("%s:/source", dir), "edasriyan/lottie-to-gif")
-					cmd.ShowCMD = true
-					output, err := cmd.CombinedOutput()
-					if err != nil {
-						fmt.Println(fmt.Sprintf("执行命令失败,错误信息:%s\n输出内容:%s", err.Error(), string(output)))
-						return c.Send(string(output), tele.ModeHTML)
-					}
+					fmt.Println(fmt.Sprintf("执行命令失败,错误信息:%s\n输出内容:%s", err.Error(), string(output)))
+					return c.Send(string(output), tele.ModeHTML)
 				}
 			}
 
@@ -116,9 +110,9 @@ func main() {
 
 			webmFileName := fmt.Sprintf("%s/%s.webm", dir, sticker.UniqueID)
 			mp4FileName := strings.ReplaceAll(webmFileName, ".webm", ".mp4")
-			_, err = os.Stat(webmFileName)
+			_, err = os.Stat(mp4FileName)
 			if err != nil {
-				if os.IsNotExist(err) == false {
+				if !os.IsNotExist(err) {
 					return c.Send(err.Error(), tele.ModeHTML)
 				}
 
@@ -141,7 +135,7 @@ func main() {
 				}
 			}
 
-			mp4File := tele.Video{File: tele.FromDisk(mp4FileName), Caption: "MP4格式的动图,下载后请自行转换格式为gif"}
+			mp4File := tele.Video{File: tele.FromDisk(mp4FileName), FileName: fmt.Sprintf("%s.gif", sticker.UniqueID), Caption: "MP4格式的动图,下载后请自行转换格式为gif"}
 			err = c.Send(&mp4File)
 			if err != nil {
 				return c.Send(err.Error(), tele.ModeHTML)
