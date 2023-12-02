@@ -36,10 +36,10 @@ func main() {
 
 	bot.Handle("/get_id", func(c tele.Context) error {
 		if c.Chat().Type == tele.ChatGroup || c.Chat().Type == tele.ChatSuperGroup {
-			var msg = fmt.Sprintf("用户id:%d\n群组id:%d", c.Message().OriginalSender.ID, c.Message().Chat.ID)
+			var msg = fmt.Sprintf("用户id:%d\n群组id:%d", c.Message().Sender.ID, c.Message().Chat.ID)
 			return c.Send(msg, tele.ModeHTML)
 		} else {
-			var msg = fmt.Sprintf("用户id:%d\n对话id:%d", c.Message().OriginalSender.ID, c.Message().Chat.ID)
+			var msg = fmt.Sprintf("用户id:%d\n对话id:%d", c.Message().Sender.ID, c.Message().Chat.ID)
 			return c.Send(msg, tele.ModeHTML)
 		}
 	})
@@ -96,7 +96,7 @@ func main() {
 					cmd.ShowCMD = true
 					output, err := cmd.CombinedOutput()
 					if err != nil {
-						fmt.Println(fmt.Sprintf("执行命令失败,错误信息:%s", err.Error()))
+						fmt.Println(fmt.Sprintf("执行命令失败,错误信息:%s\n输出内容:%s", err.Error(), string(output)))
 						return c.Send(string(output), tele.ModeHTML)
 					}
 				}
@@ -136,12 +136,12 @@ func main() {
 				cmd.ShowCMD = true
 				output, err := cmd.CombinedOutput()
 				if err != nil {
-					fmt.Println(fmt.Sprintf("执行命令失败,错误信息:%s", err.Error()))
+					fmt.Println(fmt.Sprintf("执行命令失败,错误信息:%s\n输出内容:%s", err.Error(), string(output)))
 					return c.Send(string(output), tele.ModeHTML)
 				}
 			}
 
-			mp4File := tele.Video{File: tele.FromDisk(mp4FileName)}
+			mp4File := tele.Video{File: tele.FromDisk(mp4FileName), Caption: "MP4格式的动图,下载后请自行转换格式为gif"}
 			err = c.Send(&mp4File)
 			if err != nil {
 				return c.Send(err.Error(), tele.ModeHTML)
