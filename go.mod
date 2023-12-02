@@ -4,6 +4,7 @@ go 1.21.4
 
 require (
 	github.com/codeskyblue/go-sh v0.0.0-20200712050446-30169cf553fe
+	github.com/pkg/errors v0.9.1
 	gopkg.in/telebot.v3 v3.2.1
 )
 
