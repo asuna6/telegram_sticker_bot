@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/codeskyblue/go-sh"
+	"github.com/pkg/errors"
 	tele "gopkg.in/telebot.v3"
 )
 
@@ -54,12 +55,12 @@ func main() {
 		_, err := os.Stat(dir)
 		if err != nil {
 			if !os.IsNotExist(err) {
-				return c.Send(err.Error(), tele.ModeHTML)
+				return c.Send(errors.WithStack(err), tele.ModeHTML)
 			}
 			if os.IsNotExist(err) {
 				err = os.Mkdir(dir, os.ModePerm)
 				if err != nil {
-					return c.Send(err.Error(), tele.ModeHTML)
+					return c.Send(errors.WithStack(err), tele.ModeHTML)
 				}
 			}
 		}
@@ -75,12 +76,12 @@ func main() {
 			_, err = os.Stat(gifFileName)
 			if err != nil {
 				if !os.IsNotExist(err) {
-					return c.Send(err.Error(), tele.ModeHTML)
+					return c.Send(errors.WithStack(err), tele.ModeHTML)
 				}
 
 				err := bot.Download(sticker.MediaFile(), tgsFileName)
 				if err != nil {
-					return c.Send(err.Error(), tele.ModeHTML)
+					return c.Send(errors.WithStack(err), tele.ModeHTML)
 				}
 
 				if runtime.GOOS != "linux" {
@@ -99,7 +100,7 @@ func main() {
 			imageFile := tele.Document{File: tele.FromDisk(gifFileName), FileName: fmt.Sprintf("%s.gif", sticker.UniqueID), Caption: "MP4格式的动图,下载后请自行转换格式为gif"}
 			err = c.Send(&imageFile)
 			if err != nil {
-				return c.Send(err.Error(), tele.ModeHTML)
+				return c.Send(errors.WithStack(err), tele.ModeHTML)
 			} else {
 				return nil
 			}
@@ -113,12 +114,12 @@ func main() {
 			_, err = os.Stat(mp4FileName)
 			if err != nil {
 				if !os.IsNotExist(err) {
-					return c.Send(err.Error(), tele.ModeHTML)
+					return c.Send(errors.WithStack(err), tele.ModeHTML)
 				}
 
 				err := bot.Download(sticker.MediaFile(), webmFileName)
 				if err != nil {
-					return c.Send(err.Error(), tele.ModeHTML)
+					return c.Send(errors.WithStack(err), tele.ModeHTML)
 				}
 
 				// windows下请手动下载ffmpeg并且放到环境变量目录中
@@ -138,7 +139,7 @@ func main() {
 			mp4File := tele.Video{File: tele.FromDisk(mp4FileName), FileName: fmt.Sprintf("%s.gif", sticker.UniqueID), Caption: "MP4格式的动图,下载后请自行转换格式为gif"}
 			err = c.Send(&mp4File)
 			if err != nil {
-				return c.Send(err.Error(), tele.ModeHTML)
+				return c.Send(errors.WithStack(err), tele.ModeHTML)
 			} else {
 				return nil
 			}
@@ -147,14 +148,14 @@ func main() {
 				webpFileName := fmt.Sprintf("%s/%s.webp", dir, sticker.UniqueID)
 				err := bot.Download(sticker.MediaFile(), webpFileName)
 				if err != nil {
-					return c.Send(err.Error(), tele.ModeHTML)
+					return c.Send(errors.WithStack(err), tele.ModeHTML)
 				}
 
 				// 原始图片是webp格式, 因为有很多webp图片是透明背景, 转换为jpg格式会有黑色背景, 转换为png也有奇怪的问题, 用户可以下载后自行转换和处理
 				imageFile := tele.Photo{File: tele.FromDisk(webpFileName)}
 				err = c.Send(&imageFile)
 				if err != nil {
-					return c.Send(err.Error(), tele.ModeHTML)
+					return c.Send(errors.WithStack(err), tele.ModeHTML)
 				} else {
 					return nil
 				}
