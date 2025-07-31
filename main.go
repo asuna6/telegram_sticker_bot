@@ -14,8 +14,13 @@ import (
 )
 
 func main() {
+	var token = "6341723545:AAHoxWlv_ME_c02zk84A3PcNBbZoO8RA_AA"
+	var envToken = os.Getenv("bot_token")
+	if envToken != "" {
+		token = envToken
+	}
 	pref := tele.Settings{
-		Token:  "6341723545:AAHoxWlv_ME_c02zk84A3PcNBbZoO8RA_AA",
+		Token:  token,
 		Poller: &tele.LongPoller{Timeout: 10 * time.Second},
 		// Poller: webhook,
 	}
